@@ -2,6 +2,18 @@
 require_once '/Programs/xampp/htdocs/developmentScheduler/functions.php';
 session_start();
 dd($_SESSION); 
+dd(parse_url($_SERVER['REQUEST_URI'])['path']);
+//'Ελεγχος συνδεδεμένου χρήστη. Αν δεν υπάρχει ο χρήστης μεταφέρεται στην σελίδα login.php.
+// Από εκεί μπορεί να κάνει είσοδο ή να μεταφερθεί στην σελίδα sign-up-form.php για να εγγραφή
+if(empty($_SESSION)){
+    if(parse_url($_SERVER['REQUEST_URI'])['path']==='/developmentScheduler/views/task-lists.php'){
+        header('location: login.php');
+        exit();
+    }else if(parse_url($_SERVER['REQUEST_URI'])['path']==='/developmentScheduler/views/teams.php'){
+        header('location: login.php');
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
