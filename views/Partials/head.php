@@ -1,3 +1,8 @@
+<?php
+require_once '/Programs/xampp/htdocs/developmentScheduler/functions.php';
+session_start();
+dd($_SESSION); 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

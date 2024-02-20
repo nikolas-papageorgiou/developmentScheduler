@@ -1,13 +1,15 @@
 <?php require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/head.php';
 require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php';
+require_once '/Programs/xampp/htdocs/developmentScheduler/Core/DatabaseInterface.php';
+require_once '/Programs/xampp/htdocs/developmentScheduler/Core/DatabaseImplementation.php';
+
 $errorUsernameTaken ="";
 if($_SERVER['REQUEST_METHOD']==='POST'){
-  require_once '/Programs/xampp/htdocs/developmentScheduler/Core/DatabaseImplementation.php';
-  $Database = new DatabaseImplementation();
-  
-  $usernames = $Database->showUsers();
- 
   $isUsernameTaken = FALSE;
+  require_once '/Programs/xampp/htdocs/developmentScheduler/Core/db.php';
+  $usernames = $db->showUsernames();
+ 
+  
   //Ελέγχουμε αν το username που έδωσε ο χρήστης υπάρχει στην Βάση Δεδομένων. Αν υπάρχει ενημερώνουμε
   // την μεταβλητή $isUsernameTaken σε TRUE, δηλαδή βρέθηκε.
   foreach($usernames AS $key=>$value){
@@ -24,7 +26,8 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 //Αν δεν βρέθηκε username στην Βάση Δεδομένων προχωράμε σε εισαγωγή. Αν βρέθηκε επιστρέφουμε μήνυμα
 //στον χρήστη να επιλέξει άλλο username
 if(!$isUsernameTaken){
-  $results = $Database->registerNewUser($fullName,$email,$username,$password);
+  $db->registerNewUser($fullName,$email,$username,$password);
+  require_once '/Programs/xampp/htdocs/developmentScheduler/views/beginSession.php';
 }else{
 $errorUsernameTaken = "To username που επιλάξατε χρησιμοποιείται ήδη. Παρακαλώ επιλέξτε κάποιο άλλο.";
 }

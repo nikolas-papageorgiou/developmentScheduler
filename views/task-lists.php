@@ -1,5 +1,8 @@
 <?php require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/head.php';
-require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php'?>
+require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php';
+
+dd($_SESSION); 
+?>
 
         <!--Main Body Section-->
         <div id="main-body" >

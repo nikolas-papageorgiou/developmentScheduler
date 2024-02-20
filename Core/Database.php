@@ -1,4 +1,5 @@
 <?php
+//Να πάρω τις παραμέτρους από το dbconfig.php
 require 'dbconfig.php';
 class Database {
     private static $instance = null;

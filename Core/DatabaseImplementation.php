@@ -81,12 +81,23 @@ class DatabaseImplementation implements DatabaseInterface{
 
 
     /**Συμπληρωματικές συναρτήσεις */
-    function showUsers(){
+    function showUsernames(){
       $db = Database::getInstance();
       $connection = $db->getConnection();
       $statement = $connection->prepare("SELECT username FROM users");
       $statement->execute();
       $usernames = $statement->fetchAll(PDO::FETCH_ASSOC);
       return $usernames; 
+    }
+    function showUserIdRole($username){
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+      $statement = $connection->prepare("SELECT user_id,role FROM users WHERE username = \"{$username}\"");
+      $statement->execute();
+      $userIdRole = $statement->fetch(PDO::FETCH_ASSOC);
+      return $userIdRole; 
+    }
+    function validateUser(){
+      
     }
 }
