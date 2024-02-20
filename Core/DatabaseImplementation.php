@@ -97,7 +97,20 @@ class DatabaseImplementation implements DatabaseInterface{
       $userIdRole = $statement->fetch(PDO::FETCH_ASSOC);
       return $userIdRole; 
     }
-    function validateUser(){
-      
+    function isCredentialsCorrect($username,$password){
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+      $results = FALSE;
+
+      $statement = $connection->prepare("SELECT * FROM users ");
+      $statement->execute();
+      $usersInfo = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+      foreach($usersInfo as $key=>$value){
+        if($value['username']===$username&&$value['password']===$password){
+          $results=TRUE;
+        }
+      }
+      return $results;
     }
 }

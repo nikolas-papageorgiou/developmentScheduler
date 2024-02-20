@@ -53,4 +53,5 @@ interface DatabaseInterface{
     function createTeam();
     function showUserIdRole($username);
     function showUsernames();
+    function isCredentialsCorrect($username,$password);
 }
