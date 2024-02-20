@@ -1,6 +1,5 @@
 <?php require '../functions.php';
-dd(parse_url($_SERVER['REQUEST_URI'])['path']);
-dd($_POST);
+
 
 
 ?>

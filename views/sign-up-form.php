@@ -1,7 +1,36 @@
 <?php require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/head.php';
-require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php'?>
-
-
+require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php';
+$errorUsernameTaken ="";
+if($_SERVER['REQUEST_METHOD']==='POST'){
+  require_once '/Programs/xampp/htdocs/developmentScheduler/Core/DatabaseImplementation.php';
+  $Database = new DatabaseImplementation();
+  
+  $usernames = $Database->showUsers();
+ 
+  $isUsernameTaken = FALSE;
+  //Ελέγχουμε αν το username που έδωσε ο χρήστης υπάρχει στην Βάση Δεδομένων. Αν υπάρχει ενημερώνουμε
+  // την μεταβλητή $isUsernameTaken σε TRUE, δηλαδή βρέθηκε.
+  foreach($usernames AS $key=>$value){
+    if($value['username']===$_POST['username']){
+      $isUsernameTaken = TRUE;
+      break;
+    }
+  }
+  $fullName = $_POST['fullName'];
+  $email = $_POST['email'];
+  $username = $_POST['username'];
+  $password = $_POST['password'];
+  
+//Αν δεν βρέθηκε username στην Βάση Δεδομένων προχωράμε σε εισαγωγή. Αν βρέθηκε επιστρέφουμε μήνυμα
+//στον χρήστη να επιλέξει άλλο username
+if(!$isUsernameTaken){
+  $results = $Database->registerNewUser($fullName,$email,$username,$password);
+}else{
+$errorUsernameTaken = "To username που επιλάξατε χρησιμοποιείται ήδη. Παρακαλώ επιλέξτε κάποιο άλλο.";
+}
+ 
+}
+?>
 <!--XSS. Δεν χρειάζεται διαχείριση επειδή δεν εμφανίζω σε κάποιο σημείο τις εισαγωγές των στοιχείων που θα κάνει.
 Χρειάζονται διαχείριση τα υλόποιπα δεδομένα που θα εισάγει όπως, ονόματα λιστών, εργασιών, ονόματα ομάδων. -->
         <!--Main Body Section-->
@@ -23,6 +52,8 @@ require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/nav.php'?>
               <label for="username">Username</label>
               <input type="username" class="form-control" id="username" name="username" >
               <p id='errorUsername' style="color: red;"></p>
+              <p id='errorUsernameTaken' style="color: red;"><?= $errorUsernameTaken?></p>
+
             </div>
             <div class="form-group">
               <label for="password">Κωδικός Πρόσβασης:</label>

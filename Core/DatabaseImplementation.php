@@ -1,19 +1,28 @@
 <?php 
 
-/**
- * Σύνδεση με την Βάση Δεδομένων. Έχει υλοποιηθεί με Singleton Design Pattern.
- */
-$db = Database::getInstance();
-$connection = $db->getConnection();
+require_once '/Programs/xampp/htdocs/developmentScheduler/Core/DatabaseInterface.php';
+require_once '/Programs/xampp/htdocs/developmentScheduler/Core/Database.php';
 
-
-class Database implements DatabaseInterface{
+class DatabaseImplementation implements DatabaseInterface{
 
   /**Όλοι οι χρήστες */
-    /**
-     * Καταχώρηση Χρήστη στην Βάση Δεδομένων
-     */
-    function registerNewUser(){}
+
+
+          /**
+           * Καταχώρηση Χρήστη στην Βάση Δεδομένων
+           */
+    public static function registerNewUser($fullName,$email,$username,$password){
+      /**
+       * Σύνδεση με την Βάση Δεδομένων. Έχει υλοποιηθεί με Singleton Design Pattern.
+       */
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+
+      $role = FALSE;
+      $statement = $connection->prepare("INSERT INTO `users`(`user_id`, `full_name`, `email`, `username`, `password`, `role`) VALUES ('',\"{$fullName}\",\"{$email}\",\"{$username}\",\"{$password}\",\"{$role}\") ");
+      $statement->execute();
+      return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
     
   /**Προβολή Λίστας Εργασιών: θα εμφανίζονται όλες οι λίστες εργασιών η μία δίπλα στην άλλη.
      * Για κάθε λίστα εργασιών θα εμφανίζεται ο τίτλος, η κατηγορία και η κατάστασή της. Κάτω
@@ -64,9 +73,20 @@ class Database implements DatabaseInterface{
      * δυνατότητα/φόρμα μπορεί να είναι διαθέσιμη στο κάτω μέρος της σελίδας, όπως
      * αναπαρίσταται στην 2η ΓΕ. */
     function showTeams(){}
-    
+
     /**                     * Μόνο ο διαχειριστής              */
     function addMemberToTeam(){}
     function delegateTaskListToUser(){}
     function createTeam(){}
+
+
+    /**Συμπληρωματικές συναρτήσεις */
+    function showUsers(){
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+      $statement = $connection->prepare("SELECT username FROM users");
+      $statement->execute();
+      $usernames = $statement->fetchAll(PDO::FETCH_ASSOC);
+      return $usernames; 
+    }
 }

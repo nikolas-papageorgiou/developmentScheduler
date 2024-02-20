@@ -5,7 +5,7 @@ interface DatabaseInterface{
     /**
      * Καταχώρηση Χρήστη στην Βάση Δεδομένων
      */
-    function registerNewUser();
+    public static function registerNewUser($fullName,$email,$username,$password);
     
     /**Προβολή Λίστας Εργασιών: */
 

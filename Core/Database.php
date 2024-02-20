@@ -1,5 +1,4 @@
 <?php
-
 require 'dbconfig.php';
 class Database {
     private static $instance = null;
@@ -7,7 +6,7 @@ class Database {
 
     private function __construct() {
         // Establish database connection
-        $this->connection = new PDO('mysql:host="{$host}";dbname="{$dbname}"','{$username}', '{$password}');
+        $this->connection = new PDO("mysql:host=localhost;dbname=nikospapageorgiou","root", "");
         // Set PDO to throw exceptions on errors
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
