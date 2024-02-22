@@ -8,6 +8,7 @@ interface DatabaseInterface{
     public static function registerNewUser($fullName,$email,$username,$password);
     
     /**Προβολή Λίστας Εργασιών: */
+    function showAllTaskLists();
 
     function showTaskLists($user_id);
 
@@ -48,9 +49,10 @@ interface DatabaseInterface{
      * δυνατότητα/φόρμα μπορεί να είναι διαθέσιμη στο κάτω μέρος της σελίδας, όπως
      * αναπαρίσταται στην 2η ΓΕ. */
     function showTeams();
-    function addMemberToTeam();
+    function showUsers();
+    function addMemberToTeam($team_id,$user_id);
     function delegateTaskListToUser();
-    function createTeam();
+    function createTeam($teamName);
     function showUserIdRole($username);
     function showUsernames();
     function isCredentialsCorrect($username,$password);

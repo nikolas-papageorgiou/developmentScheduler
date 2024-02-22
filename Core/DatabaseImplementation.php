@@ -213,28 +213,11 @@ class DatabaseImplementation implements DatabaseInterface{
      * καθώς η κατάστασή της θα είναι προκαθορισμένη ως «Νέα». Ενδεικτικά, αυτή η
      * δυνατότητα/φόρμα μπορεί να είναι διαθέσιμη στο κάτω μέρος της σελίδας, όπως
      * αναπαρίσταται στην 2η ΓΕ */
-    function createTaskList($title, $category, $state,$user_id){
+    function createTaskList($title, $category, $state, $user_id){
       // Database connection
       $db = Database::getInstance();
       $connection = $db->getConnection();
-  
-      // Check if the title is already taken
-      $statement = $connection->prepare("SELECT tl.title 
-      FROM `users_task_lists` utl
-      JOIN users u ON utl.user_id = u.user_id
-      JOIN task_lists tl ON tl.task_list_id = utl.task_list_id
-      WHERE utl.user_id = :user_id AND tl.title = :title");
-
-      $statement->bindParam(':user_id', $user_id);
-      $statement->bindParam(':title', $title);
-      $statement->execute();
-      $existingTitle = $statement->fetch(PDO::FETCH_ASSOC);
-  
-      if($existingTitle){
-          // Title already taken, return error message
-          return 'Ο Τίτλος Λίστας Εργασιών που επιλέξατε υπάρχει ήδη. Παρακαλώ επιλέξτε κάποιο άλλο τίτλο.';
-      } else {
-          // Title is available, insert the new task list
+          // Create new task list
           $statement = $connection->prepare("INSERT INTO task_lists (`title`, `category`, `state`) VALUES (:title, :category, :state)");
           $statement->bindParam(':title', $title);
           $statement->bindParam(':category', $category);
@@ -252,10 +235,10 @@ class DatabaseImplementation implements DatabaseInterface{
   
           // Return success message or indicator
           return 'Η Λίστα Εργασιών δημιουργήθηκε με επιτυχία.';
-      }
-  }
+    }
   
 
+    /**                     * Μόνο ο διαχειριστής              */
 
     /**Προβολή Ομάδων: θα εμφανίζονται όλες οι ομάδες, η μία κάτω από την άλλη. Για κάθε
      * ομάδα θα εμφανίζεται το όνομά της και τα μέλη της (username).
@@ -270,12 +253,60 @@ class DatabaseImplementation implements DatabaseInterface{
      * όπου στη φόρμα αρκεί να δηλώνεται το όνομα της ομάδας. Ενδεικτικά αυτή η
      * δυνατότητα/φόρμα μπορεί να είναι διαθέσιμη στο κάτω μέρος της σελίδας, όπως
      * αναπαρίσταται στην 2η ΓΕ. */
-    function showTeams(){}
+    function showTeams(){
+      try {
+        // Database connection
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
 
-    /**                     * Μόνο ο διαχειριστής              */
-    function addMemberToTeam(){}
+        // Prepare and execute the SQL query
+        $statement = $connection->prepare("SELECT*  FROM teams");
+        $statement->execute();
+        $allTeams = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $allTeams;
+
+    
+    } catch (PDOException $e) {
+        // Handle database errors
+        return "Database Error: " . $e->getMessage();
+    }
+    }
+
+    function addMemberToTeam($team_id,$user_id){
+      try {
+        // Database connection
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
+
+        // Prepare and execute the SQL query
+        $statement = $connection->prepare("INSERT INTO `users_teams`(`user_id`,`team_id`) VALUES(:user_id,:team_id)");
+        $statement->bindParam(':user_id',$user_id);
+        $statement->bindParam(':team_id',$team_id);
+        $statement->execute();
+
+    } catch (PDOException $e) {
+        // Handle database errors
+        return "Database Error: " . $e->getMessage();
+    }
+    }
     function delegateTaskListToUser(){}
-    function createTeam(){}
+
+    function createTeam($teamName){
+      try {
+        // Database connection
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
+
+        // Prepare and execute the SQL query
+        $statement = $connection->prepare("INSERT INTO `teams`(`team_id`,`team_name`) VALUES('',:team_name)");
+        $statement->bindParam(':team_name',$teamName);
+        $statement->execute();
+
+    } catch (PDOException $e) {
+        // Handle database errors
+        return "Database Error: " . $e->getMessage();
+    }
+}
 
 
     /**Συμπληρωματικές συναρτήσεις */
@@ -300,6 +331,26 @@ class DatabaseImplementation implements DatabaseInterface{
       }
   }
   
+  function showUsers(){
+    try {
+      // Database connection
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+
+      // Prepare and execute the SQL query
+      $statement = $connection->prepare("SELECT * FROM users");
+      $statement->execute();
+
+      // Fetch all usernames as an associative array
+      $users = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+      // Return the array of usernames
+      return $users;
+  } catch (PDOException $e) {
+      // Handle database errors
+      return "Database Error: " . $e->getMessage();
+  }
+  }
   function showUserIdRole($username){
     try {
         // Database connection
