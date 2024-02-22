@@ -51,9 +51,10 @@ interface DatabaseInterface{
     function showTeams();
     function showUsers();
     function addMemberToTeam($team_id,$user_id);
-    function delegateTaskListToUser();
+    function delegateTaskListToUser($task_list_id,$user_id);
     function createTeam($teamName);
     function showUserIdRole($username);
     function showUsernames();
     function isCredentialsCorrect($username,$password);
+    function showMemberPerTeam();
 }

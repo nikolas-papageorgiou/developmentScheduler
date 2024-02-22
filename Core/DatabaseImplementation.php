@@ -289,7 +289,23 @@ class DatabaseImplementation implements DatabaseInterface{
         return "Database Error: " . $e->getMessage();
     }
     }
-    function delegateTaskListToUser(){}
+    function delegateTaskListToUser($task_list_id,$user_id){
+        try {
+            // Database connection
+            $db = Database::getInstance();
+            $connection = $db->getConnection();
+    
+            // Prepare and execute the SQL query
+            $statement = $connection->prepare("INSERT INTO `users_task_lists`(`user_id`,`task_list_id`) VALUES(:user_id,:task_list_id)");
+            $statement->bindParam(':user_id',$user_id);
+            $statement->bindParam(':task_list_id',$task_list_id);
+            $statement->execute();
+    
+        } catch (PDOException $e) {
+            // Handle database errors
+            return "Database Error: " . $e->getMessage();
+        }
+    }
 
     function createTeam($teamName){
       try {
@@ -404,4 +420,17 @@ function isCredentialsCorrect($username, $password){
   }
 }
 
+
+    function showMemberPerTeam(){
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
+        $statement = $connection->prepare("SELECT  ut.team_id AS team_id,ut.user_id AS user_id,u.full_name AS full_name,t.team_name AS team_name
+        FROM users_teams ut
+            JOIN teams t ON ut.team_id = t.team_id
+            JOIN users u ON ut.user_id = u.user_id");
+        $statement->execute();
+
+        $memberPerTeam = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $memberPerTeam; 
+    }
 }
