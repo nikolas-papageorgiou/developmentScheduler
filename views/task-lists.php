@@ -19,9 +19,11 @@ if(key_exists('deleteTaskList',$_POST)){
 }
 
 if(key_exists('createNewTask',$_POST)){
-  $db->addTask($_POST['task_list_id'],$_POST['task_title']);
+  $db->addTask($_POST['task_list_id'],$_POST['task_id']);
 }
-
+if(key_exists('createTask',$_POST)){
+  $db->createTask($_POST['task_title']);
+}
 if(key_exists('deleteTask',$_POST)){
   $db->deleteTask($_POST['task_id']);
 
@@ -31,9 +33,11 @@ if($_SESSION['role']===1){
 }else{
   $taskLists = $db->showTaskLists($_SESSION['user_id']);
 }
-
+$tasks = $db->showTasks();
 $tasksPerList = $db->showTasksPerList();
 
+
+//TO DO: Create button that just create task. Not delegate. Hidden from users
 ?>
         <!--Main Body Section-->
         <div id="main-body" >
@@ -151,15 +155,16 @@ $tasksPerList = $db->showTasksPerList();
             <input type ="hidden" name="createNewTaskList" value="createNewTaskList">
             <input type = "hidden" name ="user_id" value="<?= $_SESSION['user_id']?>" >
             </div >
-            <div><p style="color: red;"><?= $errorTitleAlreadyExists ?></p></div>
+            <div><p style="color: green;"><?= $errorTitleAlreadyExists ?></p></div>
           </form>
           </div>
-          <!--Create task section -->
+          <!--Add task section -->
           <div class="container mt-4" style="position: relative;margin-left: auto;">
               <form class="row" method = 'POST' action = 'task-lists.php'>
               <div class="col-md-1 mb-2">
               <div >
                 <input type ="hidden" name="createNewTask" value="createNewTask">
+
               </div >
              
               <div class="custom-select-wrapper">
@@ -172,17 +177,51 @@ $tasksPerList = $db->showTasksPerList();
              
                 </div>
                 <div class="col-md-4 mb-2" style='position:relative;width:500px;'>
-                  <label for="textInput"></label>
-                  <input type="text" name='task_title' class="form-control" id="textInput" placeholder="Τίτλος Εργασίας">
-                
+                  <!-- <label for="textInput"></label>
+                  <input type="text" name='task_title' class="form-control" id="textInput" placeholder="Τίτλος Εργασίας"> -->
+                  <div class="custom-select-wrapper">
+                <select class="form-select" aria-label="Default select example" name="task_id">
+                <?php foreach($tasks AS $key=>$value) : ?>
+
+                  <option value="<?=htmlspecialchars( $value['task_id']) ?>" > <?=htmlspecialchars( $value['title'])?></option>
+                  <?php endforeach;?>
+                </select>
+              </div>
+
+
                   </div>
                 <div class="col-md-4 mb-2" style='position:relative;width:500px;'>
                   <label></label>
-                  <button type="submit" class="btn btn-primary btn-block" >Δημιουργία Εργασίας</button>
+                  <button type="submit" class="btn btn-primary btn-block" >Προσθήκη Εργασίας</button>
                 </div>
               </form>
             </div>
+            <!--Create task section -->
+
+            <div class="container mt-4" style="position: relative;margin-left: auto;" style=<?= ($_SESSION['role']===0) ?'display:none' :"" ?>>
+                        <form class="row" method = 'POST' action = 'task-lists.php'>
+                        <div class="col-md-1 mb-2">
+                        <div >
+                          <input type ="hidden" name="createTask" value="createTask">
+                       </div >
+                      
+                          </div>
+                          <div class="col-md-4 mb-2" style='position:relative;width:500px;'>
+                            <label for="textInput"></label>
+                            <input type="text" name='task_title' class="form-control" id="textInput" placeholder="Τίτλος Εργασίας">
+                          
+                            </div>
+                          <div class="col-md-4 mb-2" style='position:relative;width:500px;'>
+                            <label></label>
+                            <button type="submit" class="btn btn-primary btn-block" >Δημιουργία Εργασίας</button>
+                          </div>
+                        </form>
+                      </div>
         </div>
+
+            
+                
+
         <!--Footer Section -->
         <?php require '/Programs/xampp/htdocs/developmentScheduler/views/Partials/foot.php'?>
 

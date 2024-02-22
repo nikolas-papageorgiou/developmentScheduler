@@ -22,9 +22,11 @@
                                    </li> 
                                    <li><a class="nav-link active" aria-current="page" href="./task-lists.php" style="<?= (parse_url($_SERVER['REQUEST_URI'])['path']==="/developmentScheduler/views/task-lists.php") ?'background-color:#3398db;':''?> color: white;font-size:large; " >Λίστες Εργασιών</a>
                                    </li> 
+                                  
                                    <li>
-                                    <a <?= (!empty($_SESSION)&&$_SESSION['role'] === 0) ? 'style="display:none"' : '' ?> class="nav-link active" aria-current="page" href="./teams.php" style="<?= (parse_url($_SERVER['REQUEST_URI'])['path']==="/developmentScheduler/views/teams.php") ?'background-color:#3398db;':''?> color: white;font-size:large; " >Ομάδες</a>
-                                   </li> 
+                                    <a <?= ((!empty($_SESSION)&&$_SESSION['role'] === 0)|| (empty($_SESSION)) )? 'style="display:none"' : '' ?> class="nav-link active" aria-current="page" href="./teams.php" style="<?= (parse_url($_SERVER['REQUEST_URI'])['path']==="/developmentScheduler/views/teams.php") ?'background-color:#3398db;':''?> color: white;font-size:large; " >Ομάδες</a>
+                                   </li>
+
                                    <li><a class="nav-link active" aria-current="page" href="./login.php" style="<?= (parse_url($_SERVER['REQUEST_URI'])['path']==="/developmentScheduler/views/login.php") ?'background-color:#3398db;':''?> color: white;font-size:large; " >Είσοδος</a>
                                    </li> 
                                    <li><a class="nav-link active" aria-current="page" href="./logout.php" style="<?= (parse_url($_SERVER['REQUEST_URI'])['path']==="/developmentScheduler/views/logout.php") ?'background-color:#3398db;':''?> color: white;font-size:large; " >Αποσύνδεση</a>

@@ -161,6 +161,8 @@ class DatabaseImplementation implements DatabaseInterface{
       $tasksPerList = $statement->fetchAll(PDO::FETCH_ASSOC);
       return $tasksPerList;
     }
+
+
     /**Διαγραφή Εργασίας: θα είναι δυνατή μόνο η διαγραφή μίας εργασίας (δεν απαιτείται
      * λειτουργία επεξεργασία της), ενδεικτικά μπορεί να υπάρχει ένα αντίστοιχο κουμπί δίπλα
      * στον τίτλο μίας εργασίας.
@@ -181,22 +183,15 @@ class DatabaseImplementation implements DatabaseInterface{
           return "Database Error: " . $e->getMessage();
       }
     }
-    function addTask($task_list_id, $task_title){
+    function addTask($task_list_id, $task_id){
       $db = Database::getInstance();
       $connection = $db->getConnection();
   
       try {
-          // Insert the new task into the task table
-          $statement = $connection->prepare("INSERT INTO `task`(`task_id`, `title`) VALUES ('', :task_title)");
-          $statement->bindParam(':task_title', $task_title);
-          $statement->execute();
-          
-          // Retrieve the last inserted task_id
-          $last_task_id = $connection->lastInsertId();
-     
+        
           // Insert the task into the task_lists_tasks table
           $statement = $connection->prepare("INSERT INTO `task_lists_tasks`(`task_id`, `task_list_id`) VALUES (:task_id, :task_list_id)");
-          $statement->bindParam(':task_id', $last_task_id);
+          $statement->bindParam(':task_id', $task_id);
           $statement->bindParam(':task_list_id', $task_list_id);
          
           $statement->execute();
@@ -235,6 +230,23 @@ class DatabaseImplementation implements DatabaseInterface{
   
           // Return success message or indicator
           return 'Η Λίστα Εργασιών δημιουργήθηκε με επιτυχία.';
+    }
+
+    function createTask($task_title){
+        try {
+            // Database connection
+            $db = Database::getInstance();
+            $connection = $db->getConnection();
+    
+            // Prepare and execute the SQL query
+            $statement = $connection->prepare("INSERT INTO `task` (`task_id`,`title`) VALUES ('',:task_title)");
+            $statement->bindParam(':task_title',$task_title);
+            $statement->execute();
+                     
+        } catch (PDOException $e) {
+            // Handle database errors
+            return "Database Error: " . $e->getMessage();
+        }
     }
   
 
@@ -432,5 +444,16 @@ function isCredentialsCorrect($username, $password){
 
         $memberPerTeam = $statement->fetchAll(PDO::FETCH_ASSOC);
         return $memberPerTeam; 
+    }
+
+    function showTasks(){
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
+        $statement = $connection->prepare("SELECT *
+        FROM task");
+        $statement->execute();
+
+        $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $tasks; 
     }
 }
