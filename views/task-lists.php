@@ -6,7 +6,7 @@ require_once '/Programs/xampp/htdocs/developmentScheduler/Core/db.php';
 $errorTitleAlreadyExists= '';
 if(key_exists('createNewTaskList',$_POST)){
   
-   $errorTitleAlreadyExists = $db->createTaskList($_POST['title'],$_POST['category'],$_POST['state']);
+   $errorTitleAlreadyExists = $db->createTaskList($_POST['title'],$_POST['category'],$_POST['state'],$_SESSION['user_id']);
 }
 
 
@@ -26,8 +26,12 @@ if(key_exists('deleteTask',$_POST)){
   $db->deleteTask($_POST['task_id']);
 
 }
+if($_SESSION['role']===1){
+  $taskLists = $db->showAllTaskLists();
+}else{
+  $taskLists = $db->showTaskLists($_SESSION['user_id']);
+}
 
-$taskLists = $db->showTaskLists();
 $tasksPerList = $db->showTasksPerList();
 
 ?>
@@ -96,16 +100,19 @@ $tasksPerList = $db->showTasksPerList();
     <div class="col-sm-3 mb-2" style="position: relative; margin-left: 100px; text-align: center;">
     <ul>
         <?php foreach($tasksPerList as $key2 => $value2):?>
-            <li>
-                <div class="d-flex align-items-center justify-content-between">
-                    <span><?php echo $value2['task_title']; ?></span>
-                    <form class="col-lg-4 mb-2" method="POST" action="task-lists.php">
-                        <input type="hidden" name="deleteTask" value="deleteTask">
-                        <input type="hidden" name="task_id" value="<?php echo $value2['task_id']; ?>">
-                        <button type="submit" class="btn btn-danger">Διαγραφή Εργασίας</button>
-                    </form>
-                </div>
-            </li>
+          <?php if($value1['task_list_id'] === $value2['task_list_id']) {
+    echo '<li>
+        <div class="d-flex align-items-center justify-content-between">
+            <span>' . $value2['task_title'] . '</span>
+            <form class="col-lg-4 mb-2" method="POST" action="task-lists.php">
+                <input type="hidden" name="deleteTask" value="deleteTask">
+                <input type="hidden" name="task_id" value="' . $value2['task_id'] . '">
+                <button type="submit" class="btn btn-danger">Διαγραφή Εργασίας</button>
+            </form>
+        </div>
+    </li>';}
+           
+          ?>
         <?php endforeach; ?>
     </ul>
 </div>
@@ -141,11 +148,9 @@ $tasksPerList = $db->showTasksPerList();
             </div>
             <div >
             <input type ="hidden" name="state" value="ΝΕΑ">
-            </div >
-            <div >
             <input type ="hidden" name="createNewTaskList" value="createNewTaskList">
+            <input type = "hidden" name ="user_id" value="<?= $_SESSION['user_id']?>" >
             </div >
-            
             <div><p style="color: red;"><?= $errorTitleAlreadyExists ?></p></div>
           </form>
           </div>

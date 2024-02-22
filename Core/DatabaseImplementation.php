@@ -52,14 +52,19 @@ class DatabaseImplementation implements DatabaseInterface{
      * πρώτα θα εμφανίζονται οι «Νέες» λίστες, μετά αυτές που βρίσκονται «Σε εξέλιξη» και τέλος
      * οι «Ολοκληρωμένες». */
 
-     function showTaskLists(){
+     function showTaskLists($user_id){
       try {
           // Database connection
           $db = Database::getInstance();
           $connection = $db->getConnection();
           
           // Prepare and execute the SQL query
-          $statement = $connection->prepare("SELECT * FROM task_lists ORDER BY state");
+          $statement = $connection->prepare("SELECT utl.user_id AS userID, utl.task_list_id AS task_list_id, u.user_id AS user_id, tl.title AS title,tl.category AS category, tl.state AS state
+          FROM users_task_lists utl
+              JOIN users u ON u.user_id = utl.user_id
+              JOIN task_lists tl ON utl.task_list_id = tl.task_list_id
+           WHERE utl.user_id = :user_id ORDER BY state");
+          $statement->bindParam(':user_id',$user_id);
           $statement->execute();
           
           // Fetch all task lists as an associative array
@@ -73,7 +78,31 @@ class DatabaseImplementation implements DatabaseInterface{
       }
   }
   
-
+  function showAllTaskLists(){
+    try {
+      // Database connection
+      $db = Database::getInstance();
+      $connection = $db->getConnection();
+      
+      // Prepare and execute the SQL query
+      $statement = $connection->prepare("SELECT *
+      FROM users_task_lists utl
+          JOIN users u ON u.user_id = utl.user_id
+          JOIN task_lists tl ON utl.task_list_id = tl.task_list_id
+     ORDER BY state");
+      
+      $statement->execute();
+      
+      // Fetch all task lists as an associative array
+      $taskLists = $statement->fetchAll(PDO::FETCH_ASSOC);
+      
+      // Return the array of task lists
+      return $taskLists;
+  } catch (PDOException $e) {
+      // Handle database errors
+      return "Database Error: " . $e->getMessage();
+  }
+  }
     /**Επεξεργασία Λίστας Εργασιών: θα υπάρχει η δυνατότητα επεξεργασίας των στοιχείων της
      * λίστας εργασιών, καθώς και η διαγραφή της. Ενδεικτικά, μπορεί να υπάρχουν αντίστοιχα
      * κουμπιά δίπλα από τον τίτλο της. */
@@ -184,13 +213,19 @@ class DatabaseImplementation implements DatabaseInterface{
      * καθώς η κατάστασή της θα είναι προκαθορισμένη ως «Νέα». Ενδεικτικά, αυτή η
      * δυνατότητα/φόρμα μπορεί να είναι διαθέσιμη στο κάτω μέρος της σελίδας, όπως
      * αναπαρίσταται στην 2η ΓΕ */
-    function createTaskList($title, $category, $state){
+    function createTaskList($title, $category, $state,$user_id){
       // Database connection
       $db = Database::getInstance();
       $connection = $db->getConnection();
   
       // Check if the title is already taken
-      $statement = $connection->prepare("SELECT title FROM task_lists WHERE title = :title");
+      $statement = $connection->prepare("SELECT tl.title 
+      FROM `users_task_lists` utl
+      JOIN users u ON utl.user_id = u.user_id
+      JOIN task_lists tl ON tl.task_list_id = utl.task_list_id
+      WHERE utl.user_id = :user_id AND tl.title = :title");
+
+      $statement->bindParam(':user_id', $user_id);
       $statement->bindParam(':title', $title);
       $statement->execute();
       $existingTitle = $statement->fetch(PDO::FETCH_ASSOC);
@@ -204,6 +239,15 @@ class DatabaseImplementation implements DatabaseInterface{
           $statement->bindParam(':title', $title);
           $statement->bindParam(':category', $category);
           $statement->bindParam(':state', $state);
+          $statement->execute();
+  
+          //Connect user to task list
+           // Retrieve the last inserted task_id
+           $last_task_list_id = $connection->lastInsertId();
+
+           $statement = $connection->prepare("INSERT INTO `users_task_lists`(`user_id`, `task_list_id`) VALUES (:user_id,:task_list_id)");
+           $statement->bindParam(':user_id', $user_id);
+          $statement->bindParam(':task_list_id', $last_task_list_id);
           $statement->execute();
   
           // Return success message or indicator
