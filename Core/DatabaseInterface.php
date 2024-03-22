@@ -57,4 +57,7 @@ interface DatabaseInterface{
     function showUsernames();
     function isCredentialsCorrect($username,$password);
     function showMemberPerTeam();
+    function createTask($task_title);
+    function showTasks();
+    function taskListMember();
 }
