@@ -8,7 +8,8 @@ if(key_exists('createNewTeam',$_POST)){
 }
 
 if(key_exists('addNewMember',$_POST)){
-  $errorTeamName = $db->addMemberToTeam($_POST['team_id'],$_POST['user_id']);
+
+  $errorTeamName = $db->addMemberToTeam($_POST['teamName'],$_POST['user_id']);
 }
 if(key_exists('delegateTaskListToMember',$_POST)){
   $errorTeamName = $db->delegateTaskListToUser($_POST['task_list_id'],$_POST['user_id']);
@@ -17,22 +18,63 @@ $users = $db->showUsers();
 $allTeams = $db->showTeams();
 $memberPerTeam = $db->showMemberPerTeam();
 $allTaskLists = $db->showAllTaskLists();
+$taskListMember = $db->taskListMember();
+$taskListPerMemberPerTeam=[];
+
+
+// Iterate over each team in $allTeams
+foreach ($allTeams as $team => $name) {
+  
+  // Initialize an array to store tasks for members of this team
+  $taskListPerMemberPerTeam[$name['team_name']] = [];
+
+  // Iterate over each member in $memberPerTeam
+  foreach ($memberPerTeam as $teams => $member) {
+    
+    // Check if the member's team matches the current team being processed
+    if ($member['team_name'] === $name['team_name']) {
+      
+      // Add the member's full name to the task list for this team
+      $taskListPerMemberPerTeam[$name['team_name']][$member['full_name']]=[] ;
+
+      // Iterate over each task in $taskListMember
+      foreach ($taskListMember as $key => $memberTasks) {
+        
+        // Check if the task belongs to the current member
+        if ($memberTasks['fullName'] === $member['full_name']) {
+          
+          // Add the task title to the task list for this member within this team
+          $taskListPerMemberPerTeam[$name['team_name']][$member['full_name']][] = $memberTasks['title'];
+        }
+      }
+    }
+  }
+}
+
+
 ?>
 
         <!--Main Body Section-->
         <div id="main-body">
-        <?php foreach($allTeams AS $teams=>$team) :?>
-          <div style="border: 1px solid black;height: 350px;margin: 0px 10px ;position: relative;top: 10px;" >
+        <?php foreach($taskListPerMemberPerTeam AS $teamName=>$tasksMember) :?>
+          <div style="border: 1px solid black;height: 400px;margin: 0px 10px ;position: relative;top: 10px;" >
             
             <div style=" position: relative; top: 10px; margin: 0% 10px;">
-                <h1 style="display: flex; justify-content: center; color: black;"><?=$team['team_name']?></h1>
+                <h1 style="display: flex; justify-content: center; color: black;"><?=$teamName?></h1>
                 <div style="display: flex; justify-content: space-evenly;align-items: center; color: black; position: relative; top: 60px;">
                 
-                  <?php foreach($memberPerTeam AS $key=>$value ) :?>
-                    <?php if($team['team_id']===$value['team_id']){echo "<span id='member'>".$value['full_name']."</span>" ;} ?>
-                   
-                  <?php endforeach;?>
+                <?php foreach ($tasksMember as $memberName => $memberList): ?>
+                  <table>
+                     <tr>
+                         <th><?= htmlspecialchars($memberName) ?></th>
+                     </tr>
+                          <?php foreach ($memberList as $key => $value): ?>
+                                      <tr><td> <?= htmlspecialchars($value) ?></td></tr>
+                          <?php endforeach; ?>        
+                    </table>
+                  <?php endforeach; ?>
                   
+                 
                 </div>
                 
             </div>
@@ -54,9 +96,8 @@ $allTaskLists = $db->showAllTaskLists();
                   </div>
                   
                 </div>
-                <input type = "hidden" name="team_id" value=<?= $team['team_id']?>>
-
-                <input type = "hidden" name="addNewMember" value="addNeaMember">
+                <input type = "hidden" name="teamName" value="<?= $teamName?>">
+                <input type = "hidden" name="addNewMember" value="addNewMember">
                 <div class="col-md-4 mb-2">
                   <label></label>
                   <button type="submit" class="btn btn-success btn-block">Προσθήκη Μέλους</button>
@@ -91,7 +132,7 @@ $allTaskLists = $db->showAllTaskLists();
                   </div>
                   
                 </div>
-                <input type = "hidden" name="team_id" value=<?= $team['team_id']?>>
+                <input type = "hidden" name="team_id" value=<?= $teamName?>>
 
                 <input type = "hidden" name="delegateTaskListToMember" value="delegateTaskListToMember">
                 <div class="col-md-4 mb-2">

@@ -86,9 +86,7 @@ class DatabaseImplementation implements DatabaseInterface{
       
       // Prepare and execute the SQL query
       $statement = $connection->prepare("SELECT *
-      FROM users_task_lists utl
-          JOIN users u ON u.user_id = utl.user_id
-          JOIN task_lists tl ON utl.task_list_id = tl.task_list_id
+      FROM task_lists
      ORDER BY state");
       
       $statement->execute();
@@ -156,7 +154,8 @@ class DatabaseImplementation implements DatabaseInterface{
       $statement = $connection->prepare("SELECT tlt.task_id,tlt.task_list_id,tl.title AS task_list_title,category,state,t.title AS task_title 
       FROM `task_lists_tasks` tlt
       JOIN `task_lists` tl ON tlt.task_list_id = tl.task_list_id
-      JOIN `task` t ON t.task_id = tlt.task_id");
+      JOIN `task` t ON t.task_id = tlt.task_id
+      ORDER BY t.title" );
       $statement->execute();
       $tasksPerList = $statement->fetchAll(PDO::FETCH_ASSOC);
       return $tasksPerList;
@@ -284,11 +283,23 @@ class DatabaseImplementation implements DatabaseInterface{
     }
     }
 
-    function addMemberToTeam($team_id,$user_id){
+    function addMemberToTeam($teamName,$user_id){
       try {
+
+        dd($teamName);
         // Database connection
         $db = Database::getInstance();
         $connection = $db->getConnection();
+
+        $statement = $connection->prepare("SELECT team_id FROM teams WHERE team_name = :teamName");
+        $statement->bindParam(':teamName',$teamName);
+        $statement->execute();
+        $id = $statement->fetch(PDO::FETCH_ASSOC);
+        if(!empty($id)){
+            $team_id = $id['team_id'];
+        }
+        
+        dd($team_id);
 
         // Prepare and execute the SQL query
         $statement = $connection->prepare("INSERT INTO `users_teams`(`user_id`,`team_id`) VALUES(:user_id,:team_id)");
@@ -455,5 +466,20 @@ function isCredentialsCorrect($username, $password){
 
         $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
         return $tasks; 
+    }
+
+    function taskListMember() {
+        $db = Database::getInstance();
+        $connection = $db->getConnection();
+        $statement = $connection->prepare("SELECT u.full_name AS fullName, tl.title AS title
+        FROM users_task_lists utl
+        JOIN users u ON utl.user_id=u.user_id
+        JOIN task_lists tl ON utl.task_list_id=tl.task_list_id
+        ORDER BY utl.user_id");
+        $statement->execute();
+
+        $taskListPerMember = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $taskListPerMember; 
+        
     }
 }
