@@ -26,7 +26,9 @@ interface DatabaseInterface{
      * Προσθήκη Εργασίας: θα είναι δυνατή η προσθήκη μίας εργασίας σε μία λίστα εργασιών με
      * την ύπαρξη σχετικού κουμπιού κάτω από την τελευταία εργασία. */
     function deleteTask($task_id);
+    function createTask($task_title);
     function addTask($task_list_id,$task_title);
+    function showTasks();
     /**Δημιουργία Λίστας Εργασιών: θα είναι δυνατή η προσθήκη μίας νέας λίστας εργασιών,
      * όπου στη φόρμα αρκεί να δηλώνεται ο τίτλος της λίστας εργασιών και η κατηγορία της,
      * καθώς η κατάστασή της θα είναι προκαθορισμένη ως «Νέα». Ενδεικτικά, αυτή η
@@ -57,7 +59,5 @@ interface DatabaseInterface{
     function showUsernames();
     function isCredentialsCorrect($username,$password);
     function showMemberPerTeam();
-    function createTask($task_title);
-    function showTasks();
     function taskListMember();
 }
